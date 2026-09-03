@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   color cut Chris and more — design tokens
+   Paleta je izvučena iz salona: sage zid-niša, krem zidovi, hrastov pod,
+   ratan, mesing, konjak stolica, forest sofa i žuti neon potpis.
+   Vidi docs/BRAND.md
+------------------------------------------------------------------- */
+
+:root {
+  /* brend */
+  --sage: #8d9472;
+  --sage-deep: #6f7a5a;
+  --sage-soft: #b9bea3;
+  --ink: #3b3f30;
+  --cream: #f4efe6;
+  --cream-deep: #e9e1d2;
+  --sand: #d9c9b0;
+  --rattan: #c9a96e;
+  --brass: #b99a5b;
+  --cognac: #b5652f;
+  --oak: #8c4f2e;
+  --forest: #2f5d45;
+  --forest-deep: #1d2a22;
+  --night: #131a16;
+  --neon: #f5e663;
+  --neon-glow: #fff3a0;
+
+  /* semantika — "dan" (svetla tema salona) */
+  --bg: var(--cream);
+  --bg-elev: #fffdf8;
+  --fg: var(--ink);
+  --fg-muted: #6b6e5c;
+  --line: rgba(59, 63, 48, 0.12);
+  --accent: var(--sage-deep);
+  --accent-fg: var(--cream);
+
+  /* ritam */
+  --radius-arch: 999px 999px 0 0;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* "noć" — kad se u salonu gase svetla i pali neon (postavlja GSAP na <html data-theme="night">) */
+:root[data-theme="night"] {
+  --bg: var(--forest-deep);
+  --bg-elev: #24342b;
+  --fg: var(--cream);
+  --fg-muted: #b3b8a6;
+  --line: rgba(244, 239, 230, 0.12);
+  --accent: var(--neon);
+  --accent-fg: var(--night);
+}
+
+@theme inline {
+  --color-sage: var(--sage);
+  --color-sage-deep: var(--sage-deep);
+  --color-sage-soft: var(--sage-soft);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-sand: var(--sand);
+  --color-rattan: var(--rattan);
+  --color-brass: var(--brass);
+  --color-cognac: var(--cognac);
+  --color-oak: var(--oak);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-night: var(--night);
+  --color-neon: var(--neon);
+  --color-neon-glow: var(--neon-glow);
+
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-geist-sans);
+
+  --ease-out-expo: var(--ease-out-expo);
+  --ease-in-out-soft: var(--ease-in-out-soft);
+}
+
+html {
+  scroll-behavior: auto; /* Lenis preuzima */
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  /* soba se zamračuje/razdanjuje u ritmu hero prelaza (Hero transition) */
+  transition:
+    background-color 1600ms var(--ease-in-out-soft),
+    color 1600ms var(--ease-in-out-soft);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Utility: display tipografija */
+@utility text-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+
+/* Utility: neon glow za SVG/tekst */
+@utility neon-glow {
+  filter: drop-shadow(0 0 2px var(--neon-glow)) drop-shadow(0 0 8px var(--neon))
+    drop-shadow(0 0 24px rgba(245, 230, 99, 0.55));
+}
+
+/* Utility: luk (arch) maska za slike — motiv ogledala iz salona */
+@utility mask-arch {
+  border-radius: var(--radius-arch);
+  overflow: hidden;
+}
+
+/* Hero dnevni copy: sakriven pre prvog paint-a da ne bljesne pre reč-po-reč ulaza.
+   Isti ugovor kao inline hideCss() — samo pod `html.js`, i Hero garantuje da ga vrati. */
+html.js [data-hero-copy] {
+  opacity: 0;
+}
+
+/* Reduced motion — poštujemo */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

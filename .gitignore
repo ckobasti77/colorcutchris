@@ -1,0 +1,40 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# env — nikad na GitHub
+.env
+.env.*
+!.env.example
+
+# claude code: worktree-ovi i lokalna podešavanja se ne komituju, skillovi DA
+/.claude/worktrees/
+/.claude/settings.local.json
+/.claude/*.local.*
+/Claude outputs/
+
+# vercel / convex (kad dođe)
+.vercel
+.convex/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.pem
