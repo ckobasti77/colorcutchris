@@ -57,11 +57,19 @@ export function Hero() {
       const hint = el.querySelector<HTMLElement>("[data-hero-hint]");
       const dayWrap = el.querySelector<HTMLElement>("[data-hero-day]");
       const nightWrap = el.querySelector<HTMLElement>("[data-hero-night]");
-      const cta = el.querySelector<HTMLElement>("[data-hero-cta]");
       const status = el.querySelector<HTMLElement>("[data-hero-status]");
       const dayCopy = [...el.querySelectorAll<HTMLElement>("[data-hero-copy]")];
       const nightCopy = [...el.querySelectorAll<HTMLElement>("[data-hero-night-copy]")];
-      if (!dayWrap || !nightWrap || !hint || !cta) return;
+      // Labele CTA dugmadi — jedino što "trepne" na prelazu; sama dugmad nikad ne
+      // menjaju providnost ni poziciju (uvek vidljiva i klikabilna).
+      const ctaLabels = [...el.querySelectorAll<HTMLElement>("[data-hero-cta-label]")];
+      if (!dayWrap || !nightWrap || !hint) return;
+
+      /** Suptilan bljesak labela kroz blur — bez podizanja, bez pomeranja dugmeta. */
+      const flourishLabels = () => {
+        if (reduced) return;
+        for (const label of ctaLabels) revealWords(label, { duration: 0.35, blur: 4, lift: 0 });
+      };
 
       const startedScrolled = window.scrollY > 0;
       const markLit = (on: boolean) => {
@@ -76,36 +84,22 @@ export function Hero() {
       const intro: gsap.core.Animation[] = dayCopy.map((node, i) =>
         revealWords(node, { instant: introInstant, delay: introInstant ? 0 : i * 0.09 }),
       );
-      intro.push(
-        gsap.fromTo(
-          cta,
-          { opacity: 0, y: 16 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: introInstant ? 0 : 0.7,
-            delay: introInstant ? 0 : 0.34,
-            ease: "expo.out",
-          },
-        ),
-      );
 
       /* -------- 2. krajnja stanja bez animacije (reload, reduced-motion) ------ */
 
       const nightDom = () => {
         gsap.set(hint, { autoAlpha: 0, display: "none" });
-        gsap.set(cta, { opacity: 0 });
         for (const node of dayCopy) concealWords(node, { instant: true });
-        gsap.set(dayWrap, { display: "none" });
+        // visibility (ne display) — dnevni blok zadržava visinu ćelije da CTA red ispod ne skoči
+        gsap.set(dayWrap, { visibility: "hidden" });
         gsap.set(nightWrap, { opacity: 1 });
         for (const node of nightCopy) revealWords(node, { instant: true });
         markLit(true);
       };
 
       const dayDom = () => {
-        gsap.set(dayWrap, { display: "" });
+        gsap.set(dayWrap, { visibility: "visible" });
         gsap.set(hint, { display: "", autoAlpha: 1 });
-        gsap.set(cta, { opacity: 1, y: 0 });
         for (const node of nightCopy) concealWords(node, { instant: true });
         gsap.set(nightWrap, { opacity: 0 });
         for (const node of dayCopy) revealWords(node, { instant: true });
@@ -126,9 +120,9 @@ export function Hero() {
       const ignition = gsap.timeline({
         paused: true,
         onComplete: () => {
-          // dnevni blok i hint izlaze iz toka tek kad je noć gotova — nezavisno od
-          // toga gde je playhead bio, pa prekid na pola ne ostavlja rupu u layoutu
-          gsap.set(dayWrap, { display: "none" });
+          // dnevni blok se sakriva (ali zadržava visinu — visibility, ne display, da CTA
+          // red ne skoči), a hint izlazi iz toka; prekid na pola ne ostavlja rupu u layoutu
+          gsap.set(dayWrap, { visibility: "hidden" });
           gsap.set(hint, { display: "none" });
           markLit(true);
           sign.startPulse();
@@ -176,7 +170,7 @@ export function Hero() {
           SIGN.dayOut.at,
         );
       }
-      ignition.to(cta, { opacity: 0, y: -12, duration: 0.6, ease: "power2.in" }, SIGN.dayOut.at);
+      ignition.call(flourishLabels, undefined, 1.2);
       ignition.to(nightWrap, { opacity: 1, duration: 0.2 }, SIGN.nightIn.at);
       for (const node of nightCopy) {
         ignition.add(
@@ -256,8 +250,8 @@ export function Hero() {
           setDayNow();
           return;
         }
-        // dnevni blok i hint se vraćaju u tok pre nego što počnu da se pojavljuju
-        gsap.set(dayWrap, { display: "" });
+        // dnevni blok postaje vidljiv (visinu je i onako držao), hint se vraća u tok
+        gsap.set(dayWrap, { visibility: "visible" });
         gsap.set(hint, { display: "" });
         markLit(false);
 
@@ -273,8 +267,8 @@ export function Hero() {
         tl.to(live.power, { value: 0 }, 0);
         tl.to(live.tint, { value: 0 }, 0);
         tl.to(nightWrap, { opacity: 0 }, 0);
-        tl.to(cta, { opacity: 1, y: 0 }, 0);
         tl.to(hint, { autoAlpha: 1 }, 0);
+        tl.call(flourishLabels, undefined, 0.2);
         for (const node of nightCopy) {
           tl.add(concealWords(node, { duration: 0.3, staggerWindow: 0.2 }), 0);
         }
@@ -294,7 +288,7 @@ export function Hero() {
         const tl = gsap.timeline({
           onComplete: () => {
             ignition.progress(1, true);
-            gsap.set(dayWrap, { display: "none" });
+            gsap.set(dayWrap, { visibility: "hidden" });
             gsap.set(hint, { display: "none" });
             markLit(true);
             sign.startPulse();
@@ -306,7 +300,6 @@ export function Hero() {
         });
         tl.to(live.tint, { value: 1, duration: SIGN.relight * 0.5, ease: "none" }, 0);
         tl.to(nightWrap, { opacity: 1, duration: 0.2 }, 0);
-        tl.to(cta, { opacity: 0, y: -12, duration: 0.3, ease: "power2.in" }, 0);
         tl.to(hint, { autoAlpha: 0, duration: 0.25 }, 0);
         for (const node of dayCopy) {
           tl.add(concealWords(node, { duration: 0.35, staggerWindow: 0.25 }), 0);
@@ -424,7 +417,7 @@ export function Hero() {
         killRelight();
         ignition.kill();
         for (const a of intro) a.kill();
-        for (const node of [...dayCopy, ...nightCopy]) restoreWords(node);
+        for (const node of [...dayCopy, ...nightCopy, ...ctaLabels]) restoreWords(node);
       };
     },
     { dependencies: [sign], scope: section },
@@ -438,54 +431,39 @@ export function Hero() {
       aria-label="Uvod"
     >
       <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-6">
-        {/* Copy — dan i noć dele istu ćeliju grida (bez apsolutnog pozicioniranja) */}
-        <div className="relative z-10 order-2 grid lg:order-1">
-          <div data-hero-day data-reveal="off" className="col-start-1 row-start-1">
-            <p
-              data-hero-copy
-              className="mb-6 text-xs font-medium uppercase tracking-[0.22em] text-fg-muted"
-            >
-              Frizerski salon · {site.address.street}, {site.city}
-            </p>
-
-            <h1 data-hero-copy className="text-display text-[clamp(2.75rem,7.2vw,6.25rem)] text-fg">
-              <span className="block">Boja, šišanje</span>
-              <span className="block italic">
-                i sve ono <span className="not-italic">više</span>.
-              </span>
-            </h1>
-
-            <p
-              data-hero-copy
-              className="mt-7 max-w-md text-base leading-relaxed text-fg-muted md:text-lg"
-            >
-              Salon u Bojanskoj koji izgleda kao lepo uređen stan, sa koloristom koji sluša pre
-              nego što uzme makaze. Slike radova ne retuširam — ono što vidiš, to dobiješ.
-            </p>
-
-            <div data-hero-cta className="mt-9 flex flex-wrap items-center gap-3">
-              <a
-                href={site.phone.href}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-accent-fg transition-[transform,background-color] duration-300 ease-out-expo hover:-translate-y-0.5"
+        {/* Copy — dnevni i noćni tekst dele istu ćeliju; CTA red stoji ispod, van animacije */}
+        <div className="relative z-10 order-2 lg:order-1">
+          <div className="grid">
+            <div data-hero-day data-reveal="off" className="col-start-1 row-start-1">
+              <p
+                data-hero-copy
+                className="mb-6 text-xs font-medium uppercase tracking-[0.22em] text-fg-muted"
               >
-                Zakaži termin
-                <span className="opacity-70">· {site.phone.display}</span>
-              </a>
-              <a
-                href="#radovi"
-                className="inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev"
+                Frizerski salon · {site.address.street}, {site.city}
+              </p>
+
+              <h1 data-hero-copy className="text-display text-[clamp(2.75rem,7.2vw,6.25rem)] text-fg">
+                <span className="block">Boja, šišanje</span>
+                <span className="block italic">
+                  i sve ono <span className="not-italic">više</span>.
+                </span>
+              </h1>
+
+              <p
+                data-hero-copy
+                className="mt-7 max-w-md text-base leading-relaxed text-fg-muted md:text-lg"
               >
-                Pogledaj radove
-              </a>
+                Salon u Bojanskoj koji izgleda kao lepo uređen stan, sa koloristom koji sluša pre
+                nego što uzme makaze. Slike radova ne retuširam — ono što vidiš, to dobiješ.
+              </p>
             </div>
-          </div>
 
-          {/* Noćna verzija copy-ja — stiže dok se pale cevi */}
-          <div
-            data-hero-night
-            data-reveal="off"
-            className="pointer-events-none col-start-1 row-start-1 self-center opacity-0"
-          >
+            {/* Noćna verzija copy-ja — stiže dok se pale cevi */}
+            <div
+              data-hero-night
+              data-reveal="off"
+              className="pointer-events-none col-start-1 row-start-1 self-center opacity-0"
+            >
             <p
               data-hero-night-copy
               className="mb-6 text-xs font-medium uppercase tracking-[0.22em] text-neon"
@@ -506,6 +484,27 @@ export function Hero() {
               Svaka boja koja izađe iz salona nosi ga. Nastavi da skroluješ — pokazaćemo ti šta
               radimo i koliko košta.
             </p>
+            </div>
+          </div>
+
+          {/* CTA — sopstveni kontejner, uvek vidljiv i klikabilan (nije u dan/noć timeline-u).
+              Boje prate temu preko tokena; samo labele "trepnu" na prelazu. */}
+          <div data-hero-cta data-reveal="off" className="mt-9 flex flex-wrap items-center gap-3">
+            <a
+              href={site.phone.href}
+              className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-medium text-accent-fg transition-[transform,background-color] duration-300 ease-out-expo hover:-translate-y-0.5"
+            >
+              <span data-hero-cta-label className="inline-flex items-center gap-2">
+                Zakaži termin
+                <span className="opacity-70">· {site.phone.display}</span>
+              </span>
+            </a>
+            <a
+              href="#radovi"
+              className="inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev"
+            >
+              <span data-hero-cta-label>Pogledaj radove</span>
+            </a>
           </div>
         </div>
 

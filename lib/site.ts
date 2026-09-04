@@ -26,7 +26,7 @@ export const site = {
   },
   mapsUrl: "https://www.google.com/maps/place/Color+cut+Chris+and+more/@44.7960207,20.4837926,17z/data=!4m6!3m5!1s0x475a714e6dfb773b:0xe21e251a1d031898!8m2!3d44.7960207!4d20.4837926",
   mapsEmbed:
-    "https://www.google.com/maps?q=Color+cut+Chris+and+more,+Bojanska+24,+Beograd&z=16&output=embed&hl=sr-Latn",
+    "https://www.google.com/maps?ll=44.7960207,20.4837926&z=16&t=m&output=embed&hl=sr-Latn",
 } as const;
 
 export type Service = {
