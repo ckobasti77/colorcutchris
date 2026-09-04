@@ -12,6 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generisani i tuđi fajlovi — nisu naš kod
+    "convex/_generated/**",
+    ".claude/**",
+    ".agents/**",
+    "Claude outputs/**",
+    "public/**",
+    "docs/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

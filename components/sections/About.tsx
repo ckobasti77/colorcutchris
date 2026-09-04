@@ -34,7 +34,7 @@ export function About() {
             eyebrow="To sam ja"
             title={
               <span id="chris-title">
-                Kristian. Kolorista, frizer, <span className="italic">domaćin</span>.
+                Kristijan. Kolorista, frizer, <span className="italic">domaćin</span>.
               </span>
             }
           />
@@ -56,7 +56,7 @@ export function About() {
             </p>
             <p className="text-sm text-fg-muted/80">
               {/* TODO: biografija od klijenta — godine iskustva, edukacije, specijalnosti, portret */}
-              <em>— biografija i portret čekaju Kristiana —</em>
+              <em>— biografija i portret čekaju Kristijana —</em>
             </p>
           </div>
         </div>

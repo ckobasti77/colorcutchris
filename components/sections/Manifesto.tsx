@@ -9,7 +9,7 @@ import { manifesto } from "@/lib/site";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
- * Kristianov tekst o konsultaciji (sa FB/IG karusela), postavljen kao editorijal:
+ * Kristijanov tekst o konsultaciji (sa FB/IG karusela), postavljen kao editorijal:
  * reči se "pale" dok skroluješ — kao da ih izgovara u ritmu.
  */
 export function Manifesto() {
@@ -92,7 +92,7 @@ export function Manifesto() {
           ))}
         </div>
 
-        <p className="mt-14 text-xs uppercase tracking-[0.2em] text-fg-muted">— Kristian, sa Instagrama salona</p>
+        <p className="mt-14 text-xs uppercase tracking-[0.2em] text-fg-muted">— Kristijan, sa Instagrama salona</p>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ Radni dokument za sajt. Dopunjavati kako saznajemo više od klijenta.
 
 ## Činjenice (potvrđeno)
 - Naziv: **color cut Chris and more** (logo: "color cut" gore-levo, potpis "Chris", "and more" dole-desno, luk sa desne strane)
-- Vlasnik/frizer: **Kristian Vlajković** ("Kris", "Chris"; gosti ga zovu i Kristijan)
+- Vlasnik/frizer: **Kristijan Vlajković** ("Kris", "Chris"; gosti ga zovu i Kristijan)
 - Adresa: **Bojanska 24, 11000 Beograd (Zvezdara)** — Google Maps profil `/g/11jzl9t5mq`
 - Radno vreme (Google): uto–pet 09–19 · sub 10–17 · ned i pon zatvoreno
 - Google ocena: **5,0 / 24 recenzije**, sve petice (10 preuzeto, u `lib/site.ts`)
@@ -14,13 +14,13 @@ Radni dokument za sajt. Dopunjavati kako saznajemo više od klijenta.
 - Usluge iz FB intro-a: Haircolor · Haircut · Hairstyle · Bride
 - Proizvodi u salonu: Goldwell (vidljivo na slici pulta)
 - FB objava (bez retuša): "I mi naše slike ne obradjujemo!" → ponos na realne rezultate, autentičnost
-- Recenzije pominju "Klaru" (mala devojčica koja "voli da naređuje") — verovatno Kristianova ćerka; slatka priča, ali **ne stavljati ime/slike deteta na sajt bez izričite saglasnosti**
+- Recenzije pominju "Klaru" (mala devojčica koja "voli da naređuje") — verovatno Kristijanova ćerka; slatka priča, ali **ne stavljati ime/slike deteta na sajt bez izričite saglasnosti**
 - Gosti ga prate "gde god da mu je adresa" → selio se; lojalna baza
 
 ## Preuzeti materijal
 - `public/photos/rad-*.webp` — 12 radova sa Google Maps profila (vlasnikove objave, feb 2024–)
 - `public/photos/salon-*.webp` — 3 fotografije enterijera
-- **Nisu preuzete** 3 fotografije Kristiana sa detetom u stolici (Google Maps) — tražiti saglasnost; iste bi bile odličan portret za "O Chrisu"
+- **Nisu preuzete** 3 fotografije Kristijana sa detetom u stolici (Google Maps) — tražiti saglasnost; iste bi bile odličan portret za "O Chrisu"
 - `docs/reference/fb-konsultacija-*.jpg` — 8 slajdova sa FB/IG o konsultaciji; tekst prenet u `lib/site.ts → manifesto`
 
 ## Otvoreno (pitati klijenta / proveriti)

@@ -7,7 +7,7 @@
 export const site = {
   name: "color cut Chris and more",
   shortName: "Chris",
-  owner: "Kristian Vlajković",
+  owner: "Kristijan Vlajković",
   city: "Beograd",
   phone: { display: "060 373 8001", href: "tel:+381603738001" },
   viber: "viber://chat?number=%2B381603738001",
@@ -77,7 +77,7 @@ export const services: Service[] = [
   },
 ];
 
-/** Galerija radova — sve fotografije su sa javnog Google Maps profila salona (vlasnik: Kristian Vlajković). */
+/** Galerija radova — sve fotografije su sa javnog Google Maps profila salona (vlasnik: Kristijan Vlajković). */
 export type Photo = { src: string; alt: string; w: number; h: number };
 export const works: Photo[] = [
   { src: "/photos/rad-platinasti-talasi.webp", alt: "Platinasto plava duga kosa u talasima ispred tapete sa magnolijama", w: 1050, h: 1400 },
@@ -147,7 +147,7 @@ export const writeReviewUrl =
   "https://search.google.com/local/writereview?placeid=ChIJO3f7bU5xWkcRmBgDHRolHuI";
 
 /**
- * Kristianov tekst o konsultaciji — objavljen kao karusel na FB/IG.
+ * Kristijanov tekst o konsultaciji — objavljen kao karusel na FB/IG.
  * Prenet doslovno (samo mala slova umesto verzala). Redosled = redosled slajdova.
  */
 export const manifesto = [
