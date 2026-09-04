@@ -87,7 +87,8 @@ export function Contact() {
             </Reveal>
           </div>
 
-          {/* mapa — Google Maps embed, u luku kao ogledalo */}
+          {/* mapa — Google Maps embed, u luku kao ogledalo. Google-ov info-karticu
+              gasimo (koordinatni prikaz bez upita), pa crtamo svoj pin i karticu. */}
           <Reveal delay={0.1} className="mask-arch relative min-h-[420px] w-full bg-cream-deep">
             <iframe
               title={`Mapa — ${site.name}, ${site.address.street}`}
@@ -97,6 +98,84 @@ export function Contact() {
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
+
+            {/* naš pin na centru mape — centar iframe-a JE koordinata salona */}
+            <div
+              aria-hidden
+              data-reveal="off"
+              className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-10 w-8 -translate-x-1/2 -translate-y-full"
+            >
+              <span className="absolute bottom-0 left-1/2 h-1.5 w-3.5 -translate-x-1/2 rounded-[50%] bg-ink/30 blur-[2px]" />
+              <span
+                className="absolute left-1/2 top-0 grid h-8 w-8 place-items-center bg-ink shadow-sm"
+                style={{ borderRadius: "50% 50% 50% 0", transform: "translateX(-50%) rotate(45deg)" }}
+              >
+                <span className="block" style={{ transform: "rotate(-45deg)" }}>
+                  <Logo withText={false} className="h-3.5 w-3.5 text-neon" />
+                </span>
+              </span>
+            </div>
+
+            {/* naša info-kartica na dnu luka (chrome — van reč-po-reč otkrivanja) */}
+            <div
+              data-reveal="off"
+              className="absolute inset-x-5 bottom-5 z-10 flex flex-col gap-3 rounded-2xl border border-line bg-bg-elev/90 px-5 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <div className="text-display text-xl text-fg">{site.name}</div>
+                <div className="mt-0.5 text-sm text-fg-muted">
+                  {site.address.street} · {site.address.area}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <a
+                  href={site.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Otvori u Google mapama"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M14 4h6v6" />
+                    <path d="M20 4 10 14" />
+                    <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.google.com/maps/dir/?api=1&destination=44.7960207,20.4837926"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Putanja"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="m21.71 11.29-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42Z" />
+                    <path d="M9 15v-2a2 2 0 0 1 2-2h4" />
+                    <path d="m13 8 3 3-3 3" />
+                  </svg>
+                </a>
+              </div>
+            </div>
           </Reveal>
         </div>
 
