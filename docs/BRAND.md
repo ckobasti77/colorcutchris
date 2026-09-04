@@ -8,7 +8,8 @@ Radni dokument za sajt. Dopunjavati kako saznajemo više od klijenta.
 - Adresa: **Bojanska 24, 11000 Beograd (Zvezdara)** — Google Maps profil `/g/11jzl9t5mq`
 - Radno vreme (Google): uto–pet 09–19 · sub 10–17 · ned i pon zatvoreno
 - Google ocena: **5,0 / 24 recenzije**, sve petice (10 preuzeto, u `lib/site.ts`)
-- Facebook: facebook.com/Tosamjahair → "ColorcutChrisandmore" (112 pratilaca); objave su Instagram cross-post → IG nalog postoji, handle još nemamo
+- Facebook: facebook.com/Tosamjahair → "ColorcutChrisandmore" (112 pratilaca); objave su Instagram cross-post
+- Instagram: instagram.com/colorcutchrisandmore (u `lib/site.ts → social.instagram`)
 - Kategorija na FB: Beauty, cosmetic & personal care · Beograd, Srbija
 - Telefon: 060 3738001 · Email: vlajkovick@gmail.com
 - Usluge iz FB intro-a: Haircolor · Haircut · Hairstyle · Bride
@@ -24,9 +25,8 @@ Radni dokument za sajt. Dopunjavati kako saznajemo više od klijenta.
 - `docs/reference/fb-konsultacija-*.jpg` — 8 slajdova sa FB/IG o konsultaciji; tekst prenet u `lib/site.ts → manifesto`
 
 ## Otvoreno (pitati klijenta / proveriti)
-- Instagram handle
-- Cenovnik (postoji štampana "KARTA" u salonu — tražiti fotografiju/PDF)
-- Sistem zakazivanja koji tvrdi da koristi (koji? ima li javni link/API?)
+- Cenovnik (postoji štampana "KARTA" u salonu — tražiti fotografiju/PDF) → cene „od" za zakazivanje Chris unosi u `/admin → Usluge`
+- Trajanja usluga u zakazivanju su predlog (`lib/booking.ts`) — Chris ih koriguje u `/admin → Usluge`
 - Biografija (godine iskustva, edukacije), portret bez deteta
 - Saglasnost za korišćenje fotografija gošći sa Google Maps na sajtu (javno objavljene od vlasnika, ali potvrditi)
 
@@ -73,7 +73,9 @@ Referentni tekst u njegovom glasu: karusel o konsultaciji ("Zašto moja kosa ne 
 - `gsap` 3.15 + `@gsap/react` — ScrollTrigger, timeline-i, neon "paljenje"
 - `motion` 13 (Framer Motion) — layout/enter animacije komponenti, AnimatePresence
 - `lenis` 1.3 — smooth scroll (sinhronizovan sa GSAP ScrollTrigger)
-- Convex — kasnije, ako radimo zakazivanje/admin
+- `convex` 1.45 — backend zakazivanja i admin panela (vidi „Zakazivanje")
+- `lucide-react` — ikonice (kontakt-traka, Nav, admin); Viber je inline SVG
+- Testovi: `vitest` + `convex-test` (backend), `@playwright/test` (e2e)
 
 Pravilo podele: **GSAP** za sve što je vezano za scroll i sekvence; **motion** za stanja komponenti (hover, modal, lista); **R3F** za hero i eventualno jedan "wow" trenutak niže, ne više od toga (performanse na mobilnom).
 
@@ -82,17 +84,42 @@ Pravilo podele: **GSAP** za sve što je vezano za scroll i sekvence; **motion** 
 - **3D hero:** neon potpis "Chris" + luk kao tube (R3F), akrilni disk sa šrafovima, halo na zidu, paljenje potez-po-potez sa treperenjem, parallax na miš. "color cut"/"and more" ostaju štampana slova (kao u salonu).
 - **Obim v1:** one-page: Hero · Usluge · Radovi · Chris · Cenovnik · Kontakt. Zakazivanje = poziv/Viber. Convex/admin kasnije.
 - **Logo:** vektorizovan iz reference (`lib/brand/logo-data.ts`) — ink konture + centralne linije neona. Ne koristimo font za potpis.
+- **v1.1 (4. 9. 2026):** sekcija **Zakazivanje** (Convex) između Cenovnika i Kontakta, admin panel `/admin`, kontakt-traka
+  (desktop dock + mobilna donja traka), Hero/Nav CTA vode na `#zakazivanje`. Vidi dole.
+
+## Zakazivanje (Convex + admin)
+- **Tok za gosta:** Usluga → Dan i vreme → Podaci → „Zahtev je poslat." Slotovi dolaze isključivo sa servera
+  (`availability.day/week`), po radnom vremenu, pauzama i već zauzetim terminima; korak 30 min, najava 2 h, horizont 30 dana.
+  Zahtev je `nov` dok ga Chris ne potvrdi; posle 48 h sam ističe (cron `expirePending`).
+- **Chris u `/admin`** (deljeni ključ, sessionStorage): Zahtevi (Potvrdi / Odbij) · Kalendar (dnevni prikaz 08–21, ručni termin,
+  pauza, otkazivanje) · Radno vreme (nedeljni raspored, izuzeci po datumu, podešavanja termina) · Usluge (trajanje, cena „od",
+  vidljivo u zakazivanju).
+- **Sekcija je u noćnoj temi** (forest-deep + neon): kartice usluga sa neon prstenom kad su izabrane, slot čipovi neon/ink,
+  WeekStrip sa `layoutId` indikatorom, rezime „Tvoj termin" sa blur-in promenama vrednosti, uspeh sa iscrtanim check-om pa
+  reč-po-reč tekstom. Admin je u dnevnoj temi (cream/ink/sage), neon samo za fokus i badge.
+- **Ton:** naslov „Izaberi termin. Ja se javim.", koraci „Šta radimo? / Kad ti odgovara? / Ko dolazi?", greške u ti-formi
+  („Termin je upravo zauzet — izaberi drugi."). Svi stringovi: `components/booking/strings.ts`.
+- **Kontakt-traka:** Instagram · Facebook · Viber · Poziv · Mejl · Zakaži — desktop dock uz desnu ivicu (pojavi se kad hero ode),
+  mobilna donja traka (sklanja se u sekciji Zakazivanje). Iste ikonice u Nav-u i u Kontaktu/footeru.
+- Detalji odluka: `docs/DECISIONS.md`; uputstvo za Chrisa i deploy: `docs/HANDOVER.md`.
 
 ## Struktura koda
 ```
-app/            layout (fontovi Fraunces+Geist, SmoothScroll), page (sekcije + SceneTheme), globals.css (tokeni)
-lib/            site.ts (podaci/TODO), theme.ts (day/night), brand/logo-data.ts
+app/
+  layout.tsx    koren: fontovi Fraunces+Geist, tokeni, ConvexClientProvider, <meta name="build">
+  (site)/       javni sajt: layout (SmoothScroll, TextRevealGlobal, ContactRail) + page (sekcije + SceneTheme)
+  admin/        /admin panel (AdminPanel + tabovi) — bez Lenis-a, reveal-a i kontakt-trake
+  globals.css   tokeni
+lib/            site.ts (podaci), booking.ts (usluge/frizeri), slots.ts (aritmetika termina), dates.ts, theme.ts, textReveal.ts, contactRail.ts
+convex/         schema, bookings, availability, schedules, blocks, services, settings, admin, crons, notify, lib/*
 components/
-  providers/    SmoothScroll (Lenis+GSAP), SceneTheme (ScrollTrigger → tema)
+  providers/    SmoothScroll (Lenis+GSAP), SceneTheme (ScrollTrigger → tema), TextRevealGlobal, ConvexClientProvider
   brand/        Logo (ink SVG), NeonLogo (2D neon fallback)
   three/        NeonSign (scena), NeonSignCanvas (Canvas; dynamic ssr:false)
-  sections/     Nav, Hero, Services, Manifesto, Gallery, Reviews, About, Prices, Contact
-  ui/           Reveal (motion), SectionHeading
+  sections/     Nav, Hero, Services, Manifesto, Gallery, Reviews, About, Prices, Booking, Contact
+  booking/      BookingWizard + koraci, rezime, uspeh, greške, strings
+  ui/           Reveal (motion), SectionHeading, ContactRail, SocialIcons
+tests/e2e/      Playwright (wizard, admin, mobilna traka)
 ```
 
 ## Reference slike

@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# color cut Chris and more — sajt
 
-## Getting Started
+One-page sajt frizerskog salona (Beograd, Bojanska 24) sa onlajn zakazivanjem termina i admin panelom.
+Next.js 16 (App Router) · React 19 · Tailwind v4 · Convex (backend) · GSAP + motion · Lenis · R3F (neon u hero-u).
 
-First, run the development server:
+Brend, ton i vizuelni DNK: [`docs/BRAND.md`](docs/BRAND.md). Odluke tokom izrade: [`docs/DECISIONS.md`](docs/DECISIONS.md).
+Uputstvo za Chrisa i tehnički handover: [`docs/HANDOVER.md`](docs/HANDOVER.md).
+
+## Pokretanje
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx convex dev      # u zasebnom terminalu: gura convex/ na dev deployment i drži tipove sveže
+npm run dev         # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` (nije u git-u): `CONVEX_DEPLOYMENT`, `NEXT_PUBLIC_CONVEX_URL`, `NEXT_PUBLIC_CONVEX_SITE_URL`.
+Bez `NEXT_PUBLIC_CONVEX_URL` sajt radi, a sekcija Zakazivanje prikazuje poruku da onlajn zakazivanje nije dostupno.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Skripte
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Komanda | Šta radi |
+| --- | --- |
+| `npm run dev` | Next dev server |
+| `npm run build` / `npm start` | produkcioni build / server |
+| `npm run lint` | ESLint (nula upozorenja je standard) |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | vitest: `lib/slots.test.ts` (aritmetika termina) + `convex/bookings.test.ts` (convex-test, backend) |
+| `npm run e2e` | Playwright (desktop 1440 + mobilni 390) na `next dev :3100`; admin testovi traže `E2E_ADMIN_KEY` |
+| `node scripts/ref-shots.mjs` | referentni snimci wizard-a referentnog projekta u `docs/reference/dfrajlica/` |
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
+- **Front:** `git push origin main` → Vercel builduje sa GitHub-a. Env na Vercelu: `NEXT_PUBLIC_CONVEX_URL` (prod Convex URL).
+- **Backend:** `npx convex deploy` (prod deployment). Env na Convex-u: `ADMIN_KEY`, `NOTIFY_EMAIL`, opciono `RESEND_API_KEY`, `RESEND_FROM`, `SITE_URL`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  layout.tsx          koren: fontovi, tokeni, Convex klijent, <meta name="build">
+  (site)/             javni sajt: layout (Lenis, text reveal, kontakt-traka) + page (sekcije)
+  admin/              /admin panel (Zahtevi · Kalendar · Radno vreme · Usluge) — bez Lenis-a i reveal-a
+components/
+  booking/            wizard (Usluga → Dan i vreme → Podaci), rezime, uspeh, stringovi
+  sections/           Nav, Hero, Services, Manifesto, Gallery, Reviews, About, Prices, Booking, Contact
+  ui/                 ContactRail (dock + mobilna traka), SocialIcons, Reveal, SectionHeading…
+  providers/          SmoothScroll, SceneTheme, TextRevealGlobal, ConvexClientProvider
+convex/               šema, funkcije (bookings, availability, schedules, blocks, services, settings, admin), cron, notify
+lib/                  site.ts (podaci), booking.ts (usluge), slots.ts (aritmetika termina), dates.ts, textReveal.ts
+tests/e2e/            Playwright
+docs/                 BRAND, DECISIONS, HANDOVER, screenshots, reference
+```
