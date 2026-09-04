@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { NeonLogo } from "@/components/brand/NeonLogo";
-import { SIGN, type NeonSignHandle } from "@/components/three/NeonSign";
+import { CanvasErrorBoundary } from "@/components/three/CanvasErrorBoundary";
+import { SIGN, type NeonSignHandle } from "@/components/three/signConfig";
+import { bookingLink } from "@/lib/contactLinks";
 import { site } from "@/lib/site";
 import { setTheme } from "@/lib/theme";
 import { concealWords, restoreWords, revealWords } from "@/lib/textReveal";
@@ -14,7 +16,7 @@ gsap.registerPlugin(useGSAP);
 
 /** Debounce da Lenis ne okine buđenje više puta dok se zaustavlja (ms). */
 const WAKE_DEBOUNCE = 60;
-/** prefers-reduced-motion: skrol preko ovoliko piksela znači "mrak". */
+/** Odlazak sa vrha bez presretača (sidro, fokus, reduced-motion): skrol preko ovoliko piksela znači "mrak". */
 const REDUCED_THRESHOLD = 40;
 /** Tasteri koji znače "skroluj dole". */
 const SCROLL_KEYS = new Set(["ArrowDown", "PageDown", " ", "Spacebar"]);
@@ -46,6 +48,18 @@ const NeonSignCanvas = dynamic(
 export function Hero() {
   const section = useRef<HTMLElement>(null);
   const [sign, setSign] = useState<NeonSignHandle | null>(null);
+
+  // Dnevni copy je sakriven CSS-om dok ga timeline ne otkrije — a timeline čeka 3D znak.
+  // Ako znak ne stigne (bez WebGL-a, izgubljen kontekst, chunk), copy se ipak pokaže.
+  useEffect(() => {
+    if (sign) return;
+    const el = section.current;
+    if (!el) return;
+    const id = window.setTimeout(() => {
+      for (const node of el.querySelectorAll<HTMLElement>("[data-hero-copy]")) revealWords(node, { instant: true });
+    }, 1500);
+    return () => window.clearTimeout(id);
+  }, [sign]);
 
   useGSAP(
     () => {
@@ -388,8 +402,10 @@ export function Hero() {
             if (!isFullyDay() && !wake) startWake();
             return;
           }
-          // reduced-motion nema presretač, pa mrak okida odlazak sa vrha
-          if (reduced && isFullyDay() && window.scrollY > REDUCED_THRESHOLD) goDark();
+          // odlazak sa vrha bez presretača točkića — programski skrol na sidro (CTA, nav →
+          // Lenis scrollTo), fokus tastaturom, reduced-motion: sam skrol okida mrak, da
+          // hero ne ostane u danu dok je tema ispod već noć
+          if (isFullyDay() && window.scrollY > REDUCED_THRESHOLD) goDark();
         }, WAKE_DEBOUNCE);
       };
       window.addEventListener("scroll", onScroll, { passive: true });
@@ -491,13 +507,10 @@ export function Hero() {
               Boje prate temu preko tokena; samo labele "trepnu" na prelazu. */}
           <div data-hero-cta data-reveal="off" className="mt-9 flex flex-wrap items-center gap-3">
             <a
-              href={site.phone.href}
+              href={bookingLink.href}
               className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-medium text-accent-fg transition-[transform,background-color] duration-300 ease-out-expo hover:-translate-y-0.5"
             >
-              <span data-hero-cta-label className="inline-flex items-center gap-2">
-                Zakaži termin
-                <span className="opacity-70">· {site.phone.display}</span>
-              </span>
+              <span data-hero-cta-label>Zakaži termin</span>
             </a>
             <a
               href="#radovi"
@@ -511,7 +524,9 @@ export function Hero() {
         {/* Neon znak */}
         <div className="relative order-1 aspect-square w-full max-w-[560px] justify-self-center lg:order-2 lg:max-w-none">
           <div className="absolute inset-0">
-            <NeonSignCanvas signRef={setSign} />
+            <CanvasErrorBoundary fallback={<NeonLogo lit={false} className="h-full w-full text-fg opacity-90" />}>
+              <NeonSignCanvas signRef={setSign} />
+            </CanvasErrorBoundary>
           </div>
           <span data-hero-status data-reveal="off" className="sr-only">
             Neon znak je ugašen.

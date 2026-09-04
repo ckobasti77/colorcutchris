@@ -12,6 +12,10 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import gsap from "gsap";
+import { SIGN, type NeonLive, type NeonSignHandle } from "./signConfig";
+
+export { SIGN };
+export type { NeonLive, NeonSignHandle };
 import { LOGO_FILL, LOGO_VIEWBOX } from "@/lib/brand/logo-data";
 import { NEON_TUBES, type NeonTube } from "@/lib/brand/neon-strokes";
 
@@ -45,56 +49,11 @@ const TEXT_NIGHT = new THREE.Color("#f4efe6");
 
 /* ------------------------------------------------------------------ */
 /*  JEDAN BLOK: tajming cele koreografije + plafoni svetla              */
-/*  Živi ovde jer useFrame ispod čita plafone; Hero.tsx uvozi isti blok */
+/*  Živi u signConfig.ts (bez three-a) da Hero ne vuče three u bundle;   */
 /*  i od njega gradi `ignition` timeline.                               */
 /* ------------------------------------------------------------------ */
 
-export const SIGN = {
-  /** Paljenje (dan → noć): tačno 2.400 s. */
-  ignition: 2.4,
-  /** Buđenje (noć → dan): cev se prosto ugasi, bez vraćanja trčanja svetla. */
-  wake: 0.5,
-  /** Ponovno paljenje iz pune noći: bez precrtavanja, samo gas i treperenje. */
-  relight: 0.6,
-  /** Gornja granica `power` vrednosti. */
-  maxPower: 1,
-
-  /** Trčanje svetla + rast gasa traju istih 1.70 s. */
-  run: 1.7,
-  /** Svetlo trči kroz luk: 0.00 → 0.75. */
-  arcFill: { at: 0.0, duration: 0.75 },
-  /** Svetlo trči kroz "Chris" — jedna cev, sa povratnim potezima: 0.25 → 1.70. */
-  chrisFill: { at: 0.25, duration: 1.45 },
-  /** Dokle gas stigne dok svetlo putuje. */
-  runPower: 0.9,
-  /** Štampana slova prelaze u krem oko t = 0.70. */
-  textFlip: { at: 0.7, duration: 0.3 },
-  /** Transformator "hvata": 5 koraka od 1.70 do 2.10. */
-  flickerAt: 1.7,
-  flickerStep: 0.08,
-  flicker: [0.9, 0.15, 1, 0.45, 1],
-  /** Drži puno svetlo — poslednji tween se završava tačno na 2.400 s. */
-  hold: { at: 2.1, duration: 0.3 },
-  /** Posle paljenja: beskrajno tiho pulsiranje (0.94 ↔ 1 od maxPower). */
-  pulse: { to: 0.94, duration: 2.4 },
-
-  /** Hint "skroluj — ugasi svetla" nestaje odmah. */
-  hintFade: 0.3,
-  /** Dnevni copy odlazi reč po reč: 0.30 → 1.20. */
-  dayOut: { at: 0.3, duration: 0.5, staggerWindow: 0.4 },
-  /** Noćni copy stiže reč po reč: 1.20 → 2.20. */
-  nightIn: { at: 1.2, duration: 0.6, staggerWindow: 0.4 },
-
-  /* --- plafoni svetla pri maxPower: pola od prvobitnih; pod nepromenjen --- */
-  /** emissiveIntensity jezgra (bilo 2.55 → pola). */
-  coreEmissive: { min: 0.15, max: 1.275 },
-  /** uOpacity fresnel halo-a (bilo 0.88 → pola). */
-  haloOpacity: { min: 0.03, max: 0.44 },
-  /** opacity zidnog sjaja unutar diska (bilo 0.9 → × 0.45). */
-  wallGlow: { max: 0.405 },
-  /** opacity senke cevi na akrilu: dnevna → pri punoj snazi. */
-  shadowOpacity: { min: 0.22, max: 0.32 },
-} as const;
+// `SIGN` (tajming + plafoni) živi u ./signConfig.ts — vidi napomenu tamo.
 
 /** Redosled crtanja providnih slojeva: disk → sjaj → SENKA → slova → staklo → jezgro → halo. */
 const ORDER = {
@@ -120,7 +79,7 @@ const SHADOW_Z = 0.005;
 const SHADOW_FLATTEN = 0.05;
 
 /**
- * Isti fresnel obrazac kao halo, ali tamno i sa NormalBlending — mekе ivice.
+ * Isti fresnel obrazac kao halo, ali tamno i sa NormalBlending — meke ivice.
  * Fragmenti van akrilne ploče se odbacuju, pa senka nikad ne "curi" preko oboda.
  */
 function makeShadowMaterial() {
@@ -481,27 +440,7 @@ function WallHalo({ power }: { power: { value: number } }) {
 /*  Scena                                                               */
 /* ------------------------------------------------------------------ */
 
-/**
- * Žive vrednosti animacije: obični objekti koje GSAP tween-uje, a useFrame čita.
- * Ništa animirano ne živi u React state-u — Hero ih vozi direktno.
- */
-export type NeonLive = {
-  /** 0..maxPower — intenzitet celog znaka (treperi zajedno). */
-  power: { value: number };
-  /** 0..1 — koliko je luk "iscrtan" svetlom (drawRange). */
-  arc: { value: number };
-  /** 0..1 — isto za "Chris" cev. */
-  chris: { value: number };
-  /** 0 = štampana slova u ink boji (dan), 1 = krem (noć). */
-  tint: { value: number };
-};
-
-export type NeonSignHandle = {
-  live: NeonLive;
-  /** Tiho pulsiranje posle paljenja. */
-  startPulse: () => void;
-  stopPulse: () => void;
-};
+// `NeonLive` i `NeonSignHandle` su u ./signConfig.ts (re-export ispod).
 
 export type NeonSignProps = {
   /** Callback ili ref za imperativni handle (vidi Hero.tsx). */

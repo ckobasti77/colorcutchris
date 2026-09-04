@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist } from "next/font/google";
-import { SmoothScroll } from "@/components/providers/SmoothScroll";
-import { TextRevealGlobal } from "@/components/providers/TextRevealGlobal";
+import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { hideCss } from "@/constants/textRevealConfig";
+import { site } from "@/lib/site";
 import "./globals.css";
 
 /**
@@ -10,6 +10,9 @@ import "./globals.css";
  * bez JS-a nema ko da ga vrati, pa tada ostaje vidljiv.
  */
 const JS_FLAG = `document.documentElement.classList.add("js")`;
+
+/** Marker builda: `<meta name="build">` — po njemu proveravamo da produkcija servira poslednji commit. */
+const BUILD = process.env.VERCEL_GIT_COMMIT_SHA ?? "dev";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -25,15 +28,17 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
   title: "color cut Chris and more — frizerski salon, Beograd",
   description:
-    "Farbanje, šišanje, styling i svečane frizure. Salon Chris u Beogradu — topao prostor, iskren rad, slike koje ne retuširamo.",
+    "Farbanje, šišanje, styling i svečane frizure. Salon Chris u Beogradu — topao prostor, iskren rad, slike koje ne retuširamo. Zakaži termin onlajn.",
   openGraph: {
     title: "color cut Chris and more",
-    description: "Farbanje, šišanje, styling i svečane frizure u Beogradu.",
+    description: "Farbanje, šišanje, styling i svečane frizure u Beogradu. Zakaži termin onlajn.",
     locale: "sr_RS",
     type: "website",
   },
+  other: { build: BUILD },
 };
 
 export const viewport: Viewport = {
@@ -43,6 +48,10 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * Koren: fontovi, tokeni, Convex klijent. Javni sajt (smooth scroll, reč-po-reč
+ * otkrivanje, kontakt-traka) živi u app/(site)/layout.tsx; /admin ih ne dobija.
+ */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -55,8 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <style dangerouslySetInnerHTML={{ __html: hideCss() }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <TextRevealGlobal />
-        <SmoothScroll>{children}</SmoothScroll>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );

@@ -1,7 +1,45 @@
 import { Logo } from "@/components/brand/Logo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { contactIcon } from "@/components/ui/SocialIcons";
+import { bookingLink, contactLinks } from "@/lib/contactLinks";
 import { site } from "@/lib/site";
+
+const FOCUS =
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+
+/**
+ * Red okruglih ikonica (Instagram · Facebook · Viber · Poziv · Mejl). Lista je chrome —
+ * `data-reveal="off"`, inače bi site-wide reveal sakrio <li> koji nema teksta.
+ */
+function ContactIconRow({ size, className }: { size: "md" | "lg"; className?: string }) {
+  const item =
+    size === "lg"
+      ? "grid h-11 w-11 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg-elev hover:text-accent"
+      : "grid h-11 w-11 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg-elev hover:text-accent";
+  const icon = size === "lg" ? "h-5 w-5" : "h-4 w-4";
+
+  return (
+    <ul data-reveal="off" aria-label="Kontakt i mreže" className={`flex flex-wrap gap-2 ${className ?? ""}`}>
+      {contactLinks.map((link) => {
+        const Icon = contactIcon(link.id);
+        return (
+          <li key={link.id}>
+            <a
+              href={link.href}
+              aria-label={link.ariaLabel}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noreferrer" : undefined}
+              className={`${item} ${FOCUS}`}
+            >
+              <Icon className={icon} />
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export function Contact() {
   return (
@@ -16,7 +54,7 @@ export function Contact() {
                   Vidimo se <span className="italic">ujutru</span>.
                 </span>
               }
-              lead="Termin se zakazuje pozivom ili porukom na Viber. Odgovaram između dva gosta, pa ako ne stignem odmah — stižem."
+              lead="Termin zakažeš ovde na sajtu, pozivom ili porukom na Viber. Odgovaram između dva gosta, pa ako ne stignem odmah — stižem."
             />
 
             {/* dt/dd hvata site-wide reč-po-reč otkrivanje — bez Reveal omotača */}
@@ -61,29 +99,28 @@ export function Contact() {
             </dl>
 
             {/* linkovi su chrome — Reveal ostaje jer omotava dugmad, ne tekst */}
-            <Reveal delay={0.15}>
+            <Reveal delay={0.15} data-reveal="off">
               <div className="mt-10 flex flex-wrap gap-3">
                 <a
+                  href={bookingLink.href}
+                  className={`inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-medium text-accent-fg transition-transform duration-300 ease-out-expo hover:-translate-y-0.5 ${FOCUS}`}
+                >
+                  Zakaži termin
+                </a>
+                <a
                   href={site.phone.href}
-                  className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-medium text-accent-fg transition-transform duration-300 ease-out-expo hover:-translate-y-0.5"
+                  className={`inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev ${FOCUS}`}
                 >
                   Pozovi
                 </a>
                 <a
                   href={site.viber}
-                  className="inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev"
+                  className={`inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev ${FOCUS}`}
                 >
                   Piši na Viber
                 </a>
-                <a
-                  href={site.social.facebook}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-12 items-center rounded-full border border-line px-6 text-sm font-medium text-fg transition-colors hover:bg-bg-elev"
-                >
-                  Facebook ↗
-                </a>
               </div>
+              <ContactIconRow size="lg" className="mt-5" />
             </Reveal>
           </div>
 
@@ -133,7 +170,7 @@ export function Contact() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Otvori u Google mapama"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
+                  className="grid h-11 w-11 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
                 >
                   <svg
                     width="18"
@@ -156,7 +193,7 @@ export function Contact() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Putanja"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
+                  className="grid h-11 w-11 place-items-center rounded-full border border-line text-fg transition-colors hover:bg-bg"
                 >
                   <svg
                     width="18"
@@ -179,12 +216,15 @@ export function Contact() {
           </Reveal>
         </div>
 
-        <footer className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-line pt-8 text-xs text-fg-muted sm:flex-row">
-          <div className="flex items-center gap-3 text-fg">
-            <Logo className="h-10 w-10" />
-            <span>
-              © {new Date().getFullYear()} {site.name} · {site.address.street}, {site.city}
-            </span>
+        <footer className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-line pt-8 text-xs text-fg-muted lg:flex-row">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
+            <div className="flex items-center gap-3 text-fg">
+              <Logo className="h-10 w-10" />
+              <span>
+                © {new Date().getFullYear()} {site.name} · {site.address.street}, {site.city}
+              </span>
+            </div>
+            <ContactIconRow size="md" className="sm:border-l sm:border-line sm:pl-5" />
           </div>
           <p>Slike radova nisu retuširane.</p>
         </footer>

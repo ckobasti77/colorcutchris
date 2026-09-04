@@ -32,8 +32,11 @@
   --fg: var(--ink);
   --fg-muted: #6b6e5c;
   --line: rgba(59, 63, 48, 0.12);
-  --accent: var(--sage-deep);
+  /* akcenat je tamniji sage nego u paleti (#6f7a5a → 3,98:1 na krem): krem tekst na njemu i on kao tekst na krem = 5,3:1 */
+  --accent: #5c6649;
   --accent-fg: var(--cream);
+  /* fokus prsten prati temu: tinta na krem danju, neon na tamnom noću (neon na krem je 1,1:1 — nevidljiv) */
+  --focus: var(--ink);
 
   /* ritam */
   --radius-arch: 999px 999px 0 0;
@@ -50,6 +53,7 @@
   --line: rgba(244, 239, 230, 0.12);
   --accent: var(--neon);
   --accent-fg: var(--night);
+  --focus: var(--neon);
 }
 
 @theme inline {
@@ -77,6 +81,7 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-focus: var(--focus);
 
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-geist-sans);
