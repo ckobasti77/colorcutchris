@@ -97,3 +97,23 @@ Svaka stavka ispod je odluka doneta umesto pitanja — Jovan je spavao.
   grešci je generičan (060 123 4567), ne broj salona; „kod Chrisa“ (genitiv) za hint frizera.
 - Nije menjano: „Chris potvrđuje termin porukom ili pozivom na 060 373 8001…“ je tačan tekst iz zadatka; `process.env` u query/mutation
   radi u Convex 1.45 (guidelines predlažu typed env, nije obavezno); termini kraći od 30 min u kalendaru ostaju vizuelno kratki (22 px).
+
+## Produkcija i performanse (4. 9. 2026, ujutru)
+- **`ConvexClientProvider` nije u `app/layout.tsx`** (brief ga je tamo predvideo) nego u samom wizard chunk-u i u `AdminPanel`-u:
+  u root layout-u bi `convex/react` (+ WebSocket pri učitavanju) bio u početnom bundle-u početne strane iako ga hero i sve
+  sekcije iznad Zakazivanja ne koriste. Ponašanje je isto (jedan klijent po strani), `NoBackendFallback` i dalje radi bez URL-a.
+- **Lighthouse (mobilni, simulirano, prod `0c600b6`): performanse 55, pristupačnost 97, best practices 100, SEO 100.**
+  Skor drži 3D hero: `three` + R3F (~920 KB) se učitava odmah po hidraciji na svim uređajima (LCP 6,5 s, TBT ~0,9 s) — to je
+  postojeće stanje sajta, ne posledica zakazivanja: wizard i Convex klijent su u odloženom chunk-u koji kreće tek 600 px pre
+  sekcije, a `SIGN` izdvajanje je three izbacilo iz početnog skupa skripti. Pouzdan „pre/posle“ nije bilo moguće izmeriti
+  (stari Vercel deployment je iza SSO zaštite, PageSpeed kvota potrošena). Predlog za Jovana (ne dira se bez njegove odluke jer
+  je hero njegov dizajn): 3D znak učitavati tek posle LCP/`requestIdleCallback` ili tek kad stranica miruje, i sniziti `dpr`
+  na telefonima — realno +20–30 poena.
+- Smoke test produkcije prošao dva puta: API (`scripts/smoke-prod.mjs`: build marker = HEAD, `NEXT_PUBLIC_CONVEX_URL` = prod
+  Convex u JS-u, 13 slotova za sutra, zahtev → listPending → potvrđen u listRange → otkazan → purge) i kroz pravi UI
+  (Playwright na `colorcutchris.vercel.app`: wizard do „Zahtev je poslat.“, /admin Potvrdi, kalendar, Otkaži; snimci u
+  `docs/screenshots/prod/`). Baza je ostala bez test-zahteva (`purgeByPhone --prod`).
+- Playwright ima prod režim (`E2E_BASE_URL`, `E2E_SHOTS`, purge sa `--prod`) da se isti tok može ponoviti posle svakog deploya.
+- **Admin ključ promenjen (4. 9. ~09:00, Jovan):** posle prod smoke-a Jovan je sam postavio novi `ADMIN_KEY` na dev i prod (po
+  uputstvu „Promena ključa“). Lokalni e2e je zato pao na „Neispravan ključ“; dev je nakratko vraćen na stari ključ (greška u
+  dijagnozi), pa usklađen sa prod-om. `HANDOVER-SECRETS.local.md` nosi trenutno važeći ključ i napomenu.

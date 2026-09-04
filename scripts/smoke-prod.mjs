@@ -36,8 +36,20 @@ try {
   if (!build) fail("html: meta build", "nema <meta name=build>");
   else if (EXPECTED_SHA && !EXPECTED_SHA.startsWith(build) && !build.startsWith(EXPECTED_SHA)) fail("html: meta build", `build=${build} očekivano ${EXPECTED_SHA}`);
   else ok("html: meta build", build);
-  if (html.includes("Onlajn zakazivanje trenutno nije dostupno")) fail("html: NoBackendFallback", "NEXT_PUBLIC_CONVEX_URL nije postavljen na Vercelu");
-  else ok("html: sekcija Zakazivanje bez fallback-a");
+  // wizard je klijentski chunk, pa fallback nije u HTML-u — Convex URL tražimo u JS-u koji strana učitava
+  const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]);
+  let found = "";
+  for (const src of scripts) {
+    const js = await fetch(new URL(src, SITE)).then((r) => r.text()).catch(() => "");
+    const m = /https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.convex\.cloud/.exec(js);
+    if (m) {
+      found = m[0];
+      break;
+    }
+  }
+  if (!found) fail("js: NEXT_PUBLIC_CONVEX_URL", "Convex URL nije u JS-u — env nije postavljen na Vercelu (Production)");
+  else if (found !== CONVEX) fail("js: NEXT_PUBLIC_CONVEX_URL", `sajt gađa ${found}, očekivano ${CONVEX}`);
+  else ok("js: NEXT_PUBLIC_CONVEX_URL = prod Convex", found);
   if (html.includes("Izaberi termin")) ok("html: sekcija Zakazivanje prisutna");
   else fail("html: sekcija Zakazivanje prisutna", "naslov sekcije nije u HTML-u");
 } catch (err) {

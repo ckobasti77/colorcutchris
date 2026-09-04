@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist } from "next/font/google";
-import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { hideCss } from "@/constants/textRevealConfig";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -49,8 +48,9 @@ export const viewport: Viewport = {
 };
 
 /**
- * Koren: fontovi, tokeni, Convex klijent. Javni sajt (smooth scroll, reč-po-reč
- * otkrivanje, kontakt-traka) živi u app/(site)/layout.tsx; /admin ih ne dobija.
+ * Koren: fontovi, tokeni. Convex klijent NIJE ovde (bio bi u početnom bundle-u početne
+ * strane): wizard i admin panel ga montiraju sami, tamo gde se hook-ovi koriste.
+ * Javni sajt (smooth scroll, reč-po-reč otkrivanje, kontakt-traka) živi u app/(site)/layout.tsx.
  */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -64,7 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <style dangerouslySetInnerHTML={{ __html: hideCss() }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        {children}
       </body>
     </html>
   );

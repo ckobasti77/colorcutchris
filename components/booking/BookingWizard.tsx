@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { api } from "@/convex/_generated/api";
+import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { bookableServices, formatDin, staffName, staffNameGenitive, type StaffKey } from "@/lib/booking";
 import { useLenis } from "@/components/providers/SmoothScroll";
 import { setContactRailSuppressed } from "@/lib/contactRail";
@@ -498,6 +499,12 @@ function NoBackendFallback() {
   return <ErrorBanner message={booking.errors.noBackend} />;
 }
 
+/** Provider je ovde (u lenjo učitanom chunk-u), ne u root layout-u — convex/react ne ide u početni bundle. */
 export default function BookingWizard() {
-  return HAS_BACKEND ? <BookingWizardLive /> : <NoBackendFallback />;
+  if (!HAS_BACKEND) return <NoBackendFallback />;
+  return (
+    <ConvexClientProvider>
+      <BookingWizardLive />
+    </ConvexClientProvider>
+  );
 }

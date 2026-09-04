@@ -1,7 +1,8 @@
 # HANDOVER — zakazivanje termina i admin panel
 
-<!-- URADI-PRVO:START -->
-<!-- URADI-PRVO:END -->
+> **Stanje 4. 9. 2026, 09:20:** produkcija je živa i proverena — Vercel ima `NEXT_PUBLIC_CONVEX_URL` (prod Convex
+> `https://stoic-wolverine-389.eu-west-1.convex.cloud`), sekcija Zakazivanje vraća prave termine, a test-zahtev sa produkcije
+> je prošao ceo krug (zahtev → /admin → Potvrdi → kalendar → Otkaži) i obrisan je. Lokalni Playwright (desktop + mobilni) prolazi. Ništa nije „uradi prvo“.
 
 ## Za Chrisa — kako radi zakazivanje
 
@@ -53,7 +54,8 @@ Uključuje ih Jovan (vidi dole, Resend).
 
 ### Gde šta živi
 - Front: Vercel, projekat `colorcutchris` (GitHub `ckobasti77/colorcutchris`, grana `main`). Produkcija: https://colorcutchris.vercel.app
-- Backend: Convex, projekat `colorcutchris` — **dev** `tough-warbler-480` (`.env.local`), **prod** `stoic-wolverine-389`.
+- Backend: Convex, projekat `colorcutchris` — **dev** `tough-warbler-480` (`.env.local`), **prod** `stoic-wolverine-389`
+  (`https://stoic-wolverine-389.eu-west-1.convex.cloud`). Dashboard: `npx convex dashboard` (dev) / `--prod`.
 - Ključ i vrednosti env promenljivih: `HANDOVER-SECRETS.local.md` (lokalno, nije u git-u).
 
 ### Env promenljive (bez vrednosti)
@@ -71,6 +73,8 @@ Uključuje ih Jovan (vidi dole, Resend).
 npm run dev            # sajt (3000); u drugom terminalu: npx convex dev
 npm run lint && npm run typecheck && npm test && npm run build
 E2E_ADMIN_KEY=<ključ> npm run e2e        # Playwright, next dev na :3100, gađa DEV Convex
+E2E_BASE_URL=https://colorcutchris.vercel.app E2E_SHOTS=docs/screenshots/prod E2E_ADMIN_KEY=<ključ> npx playwright test --project=desktop   # isti tok na PRODUKCIJI (purge --prod)
+SMOKE_ADMIN_KEY=<ključ> node scripts/smoke-prod.mjs   # brzi API smoke produkcije (build marker, env, slotovi, zahtev→potvrda→otkaz→purge)
 npx convex deploy      # backend → PROD (stoic-wolverine-389); cron „expire pending booking requests“ ide sa njim
 git push origin main   # front → Vercel produkcija (proveri: gh api repos/ckobasti77/colorcutchris/deployments)
 npx convex env set ADMIN_KEY <novi> --prod        # promena ključa (i bez --prod za dev)
@@ -90,6 +94,17 @@ npx convex run bookings:purgeByPhone '{"phone":"0600000000"}' --prod   # briše 
   tranzicije, isticanje, ključ, usluge, podešavanja.
 - `tests/e2e/booking.spec.ts` — Playwright: wizard do uspeha (desktop + mobilni), pogrešan ključ, potvrda u adminu, mobilna
   kontakt-traka. Snimci: `docs/screenshots/booking/`.
+
+### Performanse (za Jovana)
+- Lighthouse mobilni na produkciji: performanse **55**, pristupačnost 97, best practices 100, SEO 100. Skor vuče 3D neon
+  (three.js ~920 KB odmah po učitavanju) — nije od zakazivanja (wizard je u odloženom chunk-u). Ako želiš 90+: 3D znak učitati
+  tek kad stranica miruje (`requestIdleCallback`) i spustiti `dpr` na telefonu; do tada 2D neon fallback već postoji.
+
+### Za Jovana — sitnice posle noći
+- Folder `.claude/worktrees/salon-neon-text-reveal-ca8813` (75 MB, mrtav worktree ugašenog home-repo-a) i ostatak
+  `.claude/worktrees/contact-map-polish-cfb35e` (zaključan drugim procesom) obriši ručno — nisu u git-u.
+- Cene „od“ i tačna trajanja usluga: `/admin → Usluge` (trenutno predlog bez cena).
+- Resend ključ za mejl obaveštenja (dole).
 
 ### Dodavanje drugog frizera (kad zatreba)
 1. `convex/schema.ts`: `staffKeyValidator = v.union(v.literal("chris"), v.literal("novi"))`.

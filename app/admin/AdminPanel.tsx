@@ -15,6 +15,7 @@ import { ConvexError } from "convex/values";
 import { motion, useReducedMotion } from "motion/react";
 import { KeyRound } from "lucide-react";
 import { api } from "@/convex/_generated/api";
+import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
 import { admin as t } from "@/components/booking/strings";
 import CalendarTab from "./CalendarTab";
 import HoursTab from "./HoursTab";
@@ -296,9 +297,11 @@ export default function AdminPanel() {
         ) : !adminKey ? (
           <KeyForm onSubmit={applyKey} />
         ) : (
-          <KeyErrorBoundary key={adminKey} onReset={clearKey}>
-            <Shell adminKey={adminKey} tab={tab} onTab={onTab} />
-          </KeyErrorBoundary>
+          <ConvexClientProvider>
+            <KeyErrorBoundary key={adminKey} onReset={clearKey}>
+              <Shell adminKey={adminKey} tab={tab} onTab={onTab} />
+            </KeyErrorBoundary>
+          </ConvexClientProvider>
         )}
       </div>
     </main>

@@ -8,8 +8,11 @@ import { admin, booking } from "../../components/booking/strings";
  * mobilna kontakt-traka. Gađa DEV Convex deployment (.env.local). Test-zahtevi se
  * brišu na kraju preko `bookings:purgeByPhone`. Admin testovi traže `E2E_ADMIN_KEY`.
  */
-const SHOTS = "docs/screenshots/booking";
+/** Snimci: podrazumevano u docs; smoke na produkciji ih šalje u zaseban folder (E2E_SHOTS). */
+const SHOTS = process.env.E2E_SHOTS ?? "docs/screenshots/booking";
 const ADMIN_KEY = process.env.E2E_ADMIN_KEY ?? "";
+/** Na produkciji (E2E_BASE_URL) test-zahtev se briše sa prod deployment-a. */
+const PURGE_FLAG = process.env.E2E_BASE_URL ? " --prod" : "";
 const NAME = "TEST Jovan";
 /** Jedinstven broj po pokretanju/projektu (rate limit je 3/h po telefonu). */
 const PHONE = `0600${String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0")}`;
@@ -61,7 +64,7 @@ test.describe.serial("zakazivanje", () => {
 
   test.afterAll(() => {
     try {
-      execSync(`npx convex run bookings:purgeByPhone "{\\"phone\\":\\"${PHONE}\\"}"`, { stdio: "ignore", timeout: 60_000 });
+      execSync(`npx convex run bookings:purgeByPhone "{\\"phone\\":\\"${PHONE}\\"}"${PURGE_FLAG}`, { stdio: "ignore", timeout: 90_000 });
     } catch {
       // čišćenje nije kritično — zapisano u HANDOVER kako se briše ručno
     }

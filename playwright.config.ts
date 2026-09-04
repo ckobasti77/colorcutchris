@@ -9,6 +9,8 @@ import { defineConfig, devices } from "@playwright/test";
  *   E2E_ADMIN_KEY=... npm run e2e
  */
 const PORT = 3100;
+/** Smoke test na produkciji: `E2E_BASE_URL=https://colorcutchris.vercel.app` — bez lokalnog servera, purge ide na prod. */
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -20,7 +22,7 @@ export default defineConfig({
   reporter: [["list"]],
   outputDir: "test-results",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: BASE_URL,
     trace: "retain-on-failure",
     locale: "sr-Latn-RS",
     timezoneId: "Europe/Belgrade",
@@ -45,10 +47,12 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: `npx next dev -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 180_000,
-  },
+  webServer: process.env.E2E_BASE_URL
+    ? undefined
+    : {
+        command: `npx next dev -p ${PORT}`,
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: true,
+        timeout: 180_000,
+      },
 });
