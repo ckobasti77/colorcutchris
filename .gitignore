@@ -38,3 +38,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 *.pem
+
+# lokalni handover sa tajnama + playwright artefakti
+*.local.md
+/test-results/
+/playwright-report/
+/playwright/.cache/

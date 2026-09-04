@@ -8,6 +8,8 @@ export const site = {
   name: "color cut Chris and more",
   shortName: "Chris",
   owner: "Kristijan Vlajković",
+  /** Produkcioni URL (Vercel) — koristi ga OG metadata i link ka /admin u mejl obaveštenju. */
+  url: "https://colorcutchris.vercel.app",
   city: "Beograd",
   phone: { display: "060 373 8001", href: "tel:+381603738001" },
   viber: "viber://chat?number=%2B381603738001",
@@ -19,10 +21,24 @@ export const site = {
     { days: "Subota", time: "10:00 – 17:00" },
     { days: "Nedelja i ponedeljak", time: "zatvoreno" },
   ],
+  /**
+   * Isto radno vreme kao podaci (indeks 0 = nedelja … 6 = subota). Izvor za
+   * podrazumevani raspored u Convex-u (`convex/lib/availability.ts → DEFAULT_WEEK`);
+   * važi dok Chris u admin panelu ne sačuva svoje. Držati u skladu sa `hours` iznad.
+   */
+  workWeek: [
+    [], // nedelja — zatvoreno
+    [], // ponedeljak — zatvoreno
+    [{ start: "09:00", end: "19:00" }], // utorak
+    [{ start: "09:00", end: "19:00" }], // sreda
+    [{ start: "09:00", end: "19:00" }], // četvrtak
+    [{ start: "09:00", end: "19:00" }], // petak
+    [{ start: "10:00", end: "17:00" }], // subota
+  ],
   google: { rating: 5.0, reviews: 24 },
   social: {
     facebook: "https://www.facebook.com/Tosamjahair/",
-    instagram: null as string | null, // TODO: IG handle (FB objave su IG cross-post, nalog postoji)
+    instagram: "https://www.instagram.com/colorcutchrisandmore/",
   },
   mapsUrl: "https://www.google.com/maps/place/Color+cut+Chris+and+more/@44.7960207,20.4837926,17z/data=!4m6!3m5!1s0x475a714e6dfb773b:0xe21e251a1d031898!8m2!3d44.7960207!4d20.4837926",
   mapsEmbed:
