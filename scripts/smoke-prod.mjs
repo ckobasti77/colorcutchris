@@ -36,16 +36,24 @@ try {
   if (!build) fail("html: meta build", "nema <meta name=build>");
   else if (EXPECTED_SHA && !EXPECTED_SHA.startsWith(build) && !build.startsWith(EXPECTED_SHA)) fail("html: meta build", `build=${build} očekivano ${EXPECTED_SHA}`);
   else ok("html: meta build", build);
-  // wizard je klijentski chunk, pa fallback nije u HTML-u — Convex URL tražimo u JS-u koji strana učitava
+  // wizard (i Convex klijent) su u lenjom chunk-u: HTML ga samo preload-uje (<link rel=preload as=script>),
+  // a njegov URL je i u loader chunk-u — zato gledamo <script src>, preload linkove i chunk-ove na koje oni upućuju.
   const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map((m) => m[1]);
+  const preloads = [...html.matchAll(/<link[^>]+as="script"[^>]+href="([^"]+)"/g)].map((m) => m[1]);
+  const seen = new Set();
+  const queue = [...scripts, ...preloads];
   let found = "";
-  for (const src of scripts) {
-    const js = await fetch(new URL(src, SITE)).then((r) => r.text()).catch(() => "");
+  while (queue.length && !found) {
+    const src = queue.shift();
+    if (seen.has(src) || seen.size > 60) continue;
+    seen.add(src);
+    const js = await fetch(new URL(src, SITE)).then((r) => (r.ok ? r.text() : "")).catch(() => "");
     const m = /https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.convex\.cloud/.exec(js);
     if (m) {
       found = m[0];
       break;
     }
+    for (const ref of js.matchAll(/static\/(?:immutable\/)?chunks\/[A-Za-z0-9_.-]+\.js/g)) queue.push("/_next/" + ref[0]);
   }
   if (!found) fail("js: NEXT_PUBLIC_CONVEX_URL", "Convex URL nije u JS-u — env nije postavljen na Vercelu (Production)");
   else if (found !== CONVEX) fail("js: NEXT_PUBLIC_CONVEX_URL", `sajt gađa ${found}, očekivano ${CONVEX}`);
